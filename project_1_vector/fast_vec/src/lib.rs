@@ -64,7 +64,6 @@ impl<T> FastVec<T> {
         if i >= self.len {
             panic!("FastVec: get out of bounds");
         }
-        let _ptr_to_data: *mut T = MALLOC.malloc(size_of::<T>() * i) as *mut T;
         unsafe {
             let val: &T = &*self.ptr_to_data.add(i);
             return val;
