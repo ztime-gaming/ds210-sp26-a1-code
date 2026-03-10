@@ -64,7 +64,6 @@ impl<T> FastVec<T> {
         if i >= self.len {
             panic!("FastVec: get out of bounds");
         }
-        let _ptr_to_data: *mut T = MALLOC.malloc(size_of::<T>() * i) as *mut T;
         unsafe {
             let val: &T = &*self.ptr_to_data.add(i);
             return val;
@@ -122,11 +121,11 @@ impl<T> FastVec<T> {
     //       cargo run --bin memory
     pub fn clear(&mut self) {
     unsafe {
-        for i in 0..self.len {
-            ptr::drop_in_place(self.ptr_to_data.add(i));
-        }
-        MALLOC.free(self.ptr_to_data as *mut u8);
+            for i in 0..self.len {
+                ptr::read(self.ptr_to_data.add(i));
+            }
     }
+    MALLOC.free(self.ptr_to_data as *mut u8);
     self.ptr_to_data = null_mut();
     self.len = 0;
     self.capacity = 0;
