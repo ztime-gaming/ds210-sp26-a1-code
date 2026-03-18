@@ -7,6 +7,7 @@ pub struct FastVec<T> {
     len: usize,
     capacity: usize,
 }
+
 impl<T> FastVec<T> {
     // Creating a new FastVec that is either empty or has capacity for some future elements.
     pub fn new() -> FastVec<T> {
@@ -130,7 +131,7 @@ impl<T> FastVec<T> {
         self.len = 0;
         self.capacity = 0;
     }
-
+}
 // Destructor should clear the fast_vec to avoid leaking memory.
 impl<T> Drop for FastVec<T> {
     fn drop(&mut self) {
