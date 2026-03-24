@@ -19,18 +19,18 @@ pub struct Adapter {
 }
 
 impl Adapter {
-    pub fn new(_model: Llama) -> Adapter {
+    pub fn new(model: Llama) -> Adapter {
         #[cfg(not(any(feature = "v1", feature = "v2", feature = "v3")))]
         panic!("You did not select which solution to run!");
 
         #[cfg(any(feature = "v1", feature = "v2", feature = "v3"))]
         return Adapter {
             #[cfg(feature = "v1")]
-            chatbot: ChatbotV1::new(_model),
+            chatbot: ChatbotV1::new(model),
             #[cfg(feature = "v2")]
-            chatbot: ChatbotV2::new(_model),
+            chatbot: ChatbotV2::new(model),
             #[cfg(feature = "v3")]
-            chatbot: ChatbotV3::new(_model),
+            chatbot: ChatbotV3::new(model),
         };
     }
 
@@ -50,8 +50,10 @@ impl Adapter {
 
         #[cfg(feature = "v1")]
         return self.chatbot.chat_with_user(message).await;
+
         #[cfg(feature = "v2")]
         return self.chatbot.chat_with_user(message).await;
+
         #[cfg(feature = "v3")]
         return self.chatbot.chat_with_user(username, message).await;
 
