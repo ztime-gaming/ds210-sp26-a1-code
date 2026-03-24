@@ -7,8 +7,6 @@ pub struct Cache<V> {
 }
 
 impl<V> Cache<V> {
-    // We use this function for testing,
-    // Do not use it or modify it.
     pub fn prime(
         max_size: usize,
         hashmap: HashMap<String, V>,
@@ -21,7 +19,6 @@ impl<V> Cache<V> {
         };
     }
 
-    // Create a new Cache with the given capacity.
     pub fn new(max_size: usize) -> Cache<V> {
         return Cache {
             max_size,
@@ -30,19 +27,20 @@ impl<V> Cache<V> {
         }
     }
 
-    // Helper functions.
     fn remove_least_recently_used(&mut self) {
-        // TODO: your code goes here.
-        // println!("Removing least recently used");
-    }
-    fn mark_as_most_recently_used(&mut self, username: String) {
-        // TODO: your code goes here.
-        // println!("Marking {username} as most recently used");
+        if let Some(least_recent) = self.usage_history.first() {
+            self.hashmap.remove(least_recent);
+            self.usage_history.remove(0);
+        }
     }
 
-    // Reading from the cache:
-    // if the username is in the cache, it must be marked as the most recently
-    // used.
+    fn mark_as_most_recently_used(&mut self, username: String) {
+        if let Some(pos) = self.usage_history.iter().position(|x| *x == username) {
+            self.usage_history.remove(pos);
+        }
+        self.usage_history.push(username);
+    }
+
     pub fn get_chat(&mut self, username: &str) -> Option<&mut V> {
         if self.hashmap.contains_key(username) {
             self.mark_as_most_recently_used(username.to_string());
@@ -51,9 +49,6 @@ impl<V> Cache<V> {
         return None;
     }
 
-    // Inserting to the cache:
-    // 1. What if cache is at capacity?
-    // 2. What should be the most recently used chat after this insertion?
     pub fn insert_chat(&mut self, username: String, chat: V) {
         println!("Insert {username} into cache:");
         println!("Cache before inserting: -----");
@@ -72,17 +67,15 @@ impl<V> Cache<V> {
     }
 }
 
-// This allows you to print the cache and view its state.
 impl<V> Debug for Cache<V> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let map: HashMap<_, _> = self.hashmap.iter()
-            .map(|(k, v)| (k, "<chat>"))
+            .map(|(k, _v)| (k, "<chat>"))
             .collect();
         write!(f, "Cache {{\n  hashmap = {:?},\n  usage_history = {:?}\n}}", map, self.usage_history)
     }
 }
 
-// You can use this for testing!
 pub fn main() {
     println!("Creating cache with capacity 3");
     let mut cache = Cache::new(3);
@@ -91,11 +84,9 @@ pub fn main() {
     cache.insert_chat(String::from("user3"), String::from("v3"));
     cache.insert_chat(String::from("user4"), String::from("v4"));
 
-    // Read the last chat.
     let v4 = cache.get_chat("user4").unwrap();
     assert_eq!(v4, "v4");
 
-    // Read the first chat.
     let v1 = cache.get_chat("user1");
     match v1 {
         None => {},
@@ -110,13 +101,10 @@ pub fn main() {
         }
     }
 
-    // Read user2 to make it be not the least recently used.
     assert_eq!(cache.get_chat("user2"), Some(&mut String::from("v2")));
 
-    // Insert a new user.
     cache.insert_chat(String::from("user5"), String::from("v5"));
 
-    // Read user2.
     let v2 = cache.get_chat("user2");
     match v2 {
         None => {
