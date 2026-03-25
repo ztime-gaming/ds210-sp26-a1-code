@@ -25,7 +25,7 @@ impl ChatbotV3 {
         });
 
         match session.add_message(message).await {
-            Ok(msg) => msg.to_string(),
+            Ok(msg) => msg,
             Err(_) => "Error generating response".to_string(),
         }
     }
@@ -33,11 +33,16 @@ impl ChatbotV3 {
     #[allow(dead_code)]
     pub fn get_history(&self, username: String) -> Vec<String> {
         if let Some(session) = self.sessions.get(&username) {
-            session
-                .session()
-                .iter()
-                .map(|m| m.to_string())
-                .collect()
+            match session.session() {
+                Ok(session_data) => {
+                    session_data
+                        .history()
+                        .into_iter()
+                        .map(|msg| msg.content().to_string())
+                        .collect()
+                }
+                Err(_) => Vec::new(),
+            }
         } else {
             Vec::new()
         }
